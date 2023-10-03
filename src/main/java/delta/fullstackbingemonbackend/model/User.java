@@ -1,8 +1,9 @@
 package delta.fullstackbingemonbackend.model;
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -13,6 +14,7 @@ import java.util.Objects;
 public class User {
 
     @Id
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
@@ -22,7 +24,7 @@ public class User {
     private String username;
 
     @NonNull
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password")
     private String password;
 
