@@ -175,7 +175,6 @@ public class MovieService {
     @SneakyThrows
     public List<JsonNode> discoverMovies(Integer resultsPerPage, String genres, String decade, String language, String originalLanguage, String cast, String crew, String watchRegion, String watchProviders, String sortBy, Integer page) {
         if (resultsPerPage == null) resultsPerPage = 20;
-        System.out.println(resultsPerPage);
         List<JsonNode> moviesCustomLimit = new ArrayList<>();
         if (page == null || page == 0) page = 1;
         StringBuilder builder = new StringBuilder(baseUrl + discoverUrl + apikeyUrl + apikey);
