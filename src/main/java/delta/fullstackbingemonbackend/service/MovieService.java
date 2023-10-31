@@ -83,8 +83,7 @@ public class MovieService {
     @SneakyThrows
     public JsonNode getMovieWatchProviders(Integer id, String watchRegion) {
         URL url = new URL(baseUrl + movieUrl + id + movieWatchProvidersUrl + apikeyUrl + apikey);
-        JsonNode movie = objectMapper(url);
-        return movie.get("results").get(watchRegion);
+        return objectMapper(url).get("results").get(watchRegion);
     }
 
     @SneakyThrows
@@ -121,14 +120,13 @@ public class MovieService {
 
     @SneakyThrows
     public List<JsonNode> searchMovies(String query, Integer year, Integer page) {
-        StringBuilder builder = new StringBuilder(baseUrl + searchUrl + apikeyUrl + apikey);
         if (query != "") query = query.replaceAll(" ", "%20");
+        StringBuilder builder = new StringBuilder(baseUrl + searchUrl + apikeyUrl + apikey);
         addQueryParam(builder, queryUrl, query);
         if (year != null) addQueryParam(builder, decadeUrl, String.valueOf(year));
         if (page != null) addQueryParam(builder, pageUrl, String.valueOf(page));
         URL url = new URL(builder.toString());
-        JsonNode movies = objectMapper(url);
-        JsonNode results = movies.get("results");
+        JsonNode results = objectMapper(url).get("results");
         List<JsonNode> movieList = new ArrayList<>();
         if (results != null && results.isArray()) {
             for (JsonNode movie : results) {
@@ -146,11 +144,11 @@ public class MovieService {
     @SneakyThrows
     public List<JsonNode> searchMovieCollections(Integer results, String query, Integer page) {
         if (results == null) results = 20;
-        if (page == null || page == 0) page = 1;
-        List<JsonNode> collectionsCustomLimit = new ArrayList<>();
-        StringBuilder builder = new StringBuilder(baseUrl + searchCollectionUrl + apikeyUrl + apikey);
         if (query != "") query = query.replaceAll(" ", "%20");
+        if (page == null || page == 0) page = 1;
+        StringBuilder builder = new StringBuilder(baseUrl + searchCollectionUrl + apikeyUrl + apikey);
         addQueryParam(builder, queryUrl, query);
+        List<JsonNode> collectionsCustomLimit = new ArrayList<>();
         while (collectionsCustomLimit.size() < results) {
             addQueryParam(builder, pageUrl, String.valueOf(page));
             URL url = new URL(builder.toString());
@@ -175,8 +173,6 @@ public class MovieService {
     @SneakyThrows
     public List<JsonNode> discoverMovies(Integer resultsPerPage, String genres, String decade, String language, String originalLanguage, String cast, String crew, String watchRegion, String watchProviders, String sortBy, Integer page) {
         if (resultsPerPage == null) resultsPerPage = 20;
-        System.out.println(resultsPerPage);
-        List<JsonNode> moviesCustomLimit = new ArrayList<>();
         if (page == null || page == 0) page = 1;
         StringBuilder builder = new StringBuilder(baseUrl + discoverUrl + apikeyUrl + apikey);
         addQueryParam(builder, genreUrl, genres);
@@ -188,6 +184,7 @@ public class MovieService {
         addQueryParam(builder, watchRegionUrl, watchRegion);
         addQueryParam(builder, watchProviderUrl, watchProviders);
         addQueryParam(builder, sortByUrl, sortBy);
+        List<JsonNode> moviesCustomLimit = new ArrayList<>();
         while (moviesCustomLimit.size() < resultsPerPage) {
             addQueryParam(builder, pageUrl, String.valueOf(page));
             URL url = new URL(builder.toString());

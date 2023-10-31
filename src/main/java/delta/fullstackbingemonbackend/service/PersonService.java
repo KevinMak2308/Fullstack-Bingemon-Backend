@@ -30,25 +30,23 @@ public class PersonService {
     @SneakyThrows
     public JsonNode getPerson(Integer id) {
         URL url = new URL(baseUrl + personUrl + id + apikeyUrl + apikey);
-        JsonNode person = objectMapper(url);
-        return person;
+        return objectMapper(url);
     }
 
     @SneakyThrows
     public List<JsonNode> getCombinedCredits(Integer id) {
         URL url = new URL(baseUrl + personUrl + id + combinedCreditsUrl + apikeyUrl + apikey);
-        JsonNode credits = objectMapper(url);
-        JsonNode movies = credits.get("cast");
+        JsonNode credits = objectMapper(url).get("cast");
         List<JsonNode> creditList = new ArrayList<>();
-        if (movies != null && movies.isArray()) {
-            for (JsonNode movie : movies) {
-                creditList.add(movie);
+        if (credits != null && credits.isArray()) {
+            for (JsonNode credit : credits) {
+                creditList.add(credit);
             }
         }
         Collections.sort(creditList, (media1, media2) -> {
-            int episodeCount1 = media1.get("popularity").asInt();
-            int episodeCount2 = media2.get("popularity").asInt();
-            return Integer.compare(episodeCount2, episodeCount1);
+            double popularity1 = media1.get("popularity").asDouble();
+            double popularity2 = media2.get("popularity").asDouble();
+            return Double.compare(popularity2, popularity1);
         });
         return creditList;
     }
@@ -56,18 +54,17 @@ public class PersonService {
     @SneakyThrows
     public List<JsonNode> getMovieCredits(Integer id) {
         URL url = new URL(baseUrl + personUrl + id + movieCreditsUrl + apikeyUrl + apikey);
-        JsonNode credits = objectMapper(url);
-        JsonNode movies = credits.get("cast");
+        JsonNode moviesCredits = objectMapper(url).get("cast");
         List<JsonNode> creditList = new ArrayList<>();
-        if (movies != null && movies.isArray()) {
-            for (JsonNode movie : movies) {
-                creditList.add(movie);
+        if (moviesCredits != null && moviesCredits.isArray()) {
+            for (JsonNode tvSeries : moviesCredits) {
+                creditList.add(tvSeries);
             }
         }
         Collections.sort(creditList, (movie1, movie2) -> {
-            double popularity1 = movie1.get("popularity").asDouble();
-            double popularity2 = movie2.get("popularity").asDouble();
-            return Double.compare(popularity2, popularity1);
+            int popularity1 = movie1.get("episode_count").asInt();
+            int popularity2 = movie2.get("episode_count").asInt();
+            return Integer.compare(popularity2, popularity1);
         });
         return creditList;
     }
@@ -75,11 +72,10 @@ public class PersonService {
     @SneakyThrows
     public List<JsonNode> getSeriesCredits(Integer id) {
         URL url = new URL(baseUrl + personUrl + id + seriesCreditsUrl + apikeyUrl + apikey);
-        JsonNode credits = objectMapper(url);
-        JsonNode series = credits.get("cast");
+        JsonNode seriesCredits = objectMapper(url).get("cast");
         List<JsonNode> creditList = new ArrayList<>();
-        if (series != null && series.isArray()) {
-            for (JsonNode tvSeries : series) {
+        if (seriesCredits != null && seriesCredits.isArray()) {
+            for (JsonNode tvSeries : seriesCredits) {
                 creditList.add(tvSeries);
             }
         }
@@ -93,6 +89,7 @@ public class PersonService {
 
     @SneakyThrows
     public List<JsonNode> searchPeople(String query, Integer page) {
+        if (query != "") query = query.replaceAll(" ", "%20");
         StringBuilder builder = new StringBuilder(baseUrl + searchUrl + apikeyUrl + apikey);
         addQueryParam(builder, queryUrl, query);
         if (page != null) addQueryParam(builder, pageUrl, String.valueOf(page));
@@ -113,15 +110,19 @@ public class PersonService {
     }
 
     @SneakyThrows
-    public List<JsonNode> getPopularPeople(Integer page) {
+    public List<JsonNode> getPopularPeople(Integer resultsPerPage, Integer page) {
+        if (resultsPerPage == null) resultsPerPage = 20;
         StringBuilder builder = new StringBuilder(baseUrl + popularPeopleUrl + apikeyUrl + apikey);
-        if (page != null) addQueryParam(builder, pageUrl, String.valueOf(page));
-        URL url = new URL(builder.toString());
-        JsonNode people = objectMapper(url);
-        JsonNode results = people.get("results");
         List<JsonNode> peopleList = new ArrayList<>();
-        if (results != null && results.isArray()) {
-            for (JsonNode person : results) {
+        while (peopleList.size() < resultsPerPage) {
+            addQueryParam(builder, pageUrl, String.valueOf(page));
+            URL url = new URL(builder.toString());
+            JsonNode people = objectMapper(url).get("results");
+            if (people.isEmpty()) {
+                break;
+            }
+            for (JsonNode person : people) {
+                if (peopleList.size() == resultsPerPage) break;
                 ObjectMapper mapper = new ObjectMapper();
                 ObjectNode newPerson = mapper.createObjectNode();
                 newPerson.put("name", person.get("name"));
@@ -131,31 +132,29 @@ public class PersonService {
                 person = mapper.treeToValue(newPerson, JsonNode.class);
                 peopleList.add(person);
             }
+            page++;
         }
         Collections.sort(peopleList, (person1, person2) -> {
             double popularity1 = person1.get("popularity").asDouble();
             double popularity2 = person2.get("popularity").asDouble();
             return Double.compare(popularity2, popularity1);
         });
-
         return peopleList;
     }
 
     @SneakyThrows
-    public List<JsonNode> getDirectors() {
+    public List<JsonNode> getDirectors(Integer resultsPerPage) {
         List<JsonNode> directors = new ArrayList<>();
         Integer page = 1;
-        while (directors.size() < 20) {
-            List<JsonNode> people = getPopularPeople(page);
+        while (directors.size() < resultsPerPage) {
+            List<JsonNode> people = getPopularPeople(null, page);
             for (JsonNode person : people) {
                 if (person.get("known_for_department").asText().equalsIgnoreCase("directing")) {
                     directors.add(person);
-                    System.out.println(person.get("name") + ": " + person.get("known_for_department"));
                 }
             }
             page++;
         }
-        System.out.println(directors);
         return directors;
     }
 

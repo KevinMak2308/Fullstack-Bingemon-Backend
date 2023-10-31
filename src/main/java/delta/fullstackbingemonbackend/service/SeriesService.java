@@ -2,7 +2,6 @@ package delta.fullstackbingemonbackend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -64,13 +63,12 @@ public class SeriesService {
 
     @SneakyThrows
     public List<JsonNode> searchSeries(String query, Integer page) {
-        StringBuilder builder = new StringBuilder(baseUrl + searchUrl + apikeyUrl + apikey);
         if (query != "") query = query.replaceAll(" ", "%20");
+        StringBuilder builder = new StringBuilder(baseUrl + searchUrl + apikeyUrl + apikey);
         addQueryParam(builder, queryUrl, query);
         if (page != null) addQueryParam(builder, pageUrl, String.valueOf(page));
         URL url = new URL(builder.toString());
-        JsonNode seriesObject = objectMapper(url);
-        JsonNode results = seriesObject.get("results");
+        JsonNode results = objectMapper(url).get("results");
         List<JsonNode> seriesList = new ArrayList<>();
         if (results != null && results.isArray()) {
             for (JsonNode series : results) {
@@ -86,7 +84,9 @@ public class SeriesService {
     }
 
     @SneakyThrows
-    public JsonNode discoverSeries(String genres, String decade, String language, String originalLanguage, String watchRegion, String watchProviders, String sortBy, Integer page) {
+    public List<JsonNode> discoverSeries(Integer resultsPerPage, String genres, String decade, String language, String originalLanguage, String watchRegion, String watchProviders, String sortBy, Integer page) {
+        if (resultsPerPage == null) resultsPerPage = 20;
+        if (page == null || page == 0) page = 1;
         StringBuilder builder = new StringBuilder(baseUrl + discoverUrl + apikeyUrl + apikey);
         addQueryParam(builder, genreUrl, genres);
         addQueryParam(builder, decadeUrl, decade);
@@ -95,21 +95,17 @@ public class SeriesService {
         addQueryParam(builder, watchRegionUrl, watchRegion);
         addQueryParam(builder, watchProviderUrl, watchProviders);
         addQueryParam(builder, sortByUrl, sortBy);
-        if (page != null) addQueryParam(builder, pageUrl, String.valueOf(page));
-        URL url = new URL(builder.toString());
-        return objectMapper(url).get("results");
-    }
-
-    @SneakyThrows
-    public List<JsonNode> discoverCustomAmountOfSeries(Integer results, String genres, String decade, String language, String originalLanguage, String watchRegion, String watchProviders, String sortBy, Integer page) {
-        if (results == null) results = 20;
         List<JsonNode> seriesCustomLimit = new ArrayList<>();
-        if (page == null || page == 0) page = 1;
-        while (seriesCustomLimit.size() < results) {
-            JsonNode tvSeries = discoverSeries(genres, decade, language, originalLanguage, watchRegion, watchProviders, sortBy, page);
-            for (JsonNode series : tvSeries) {
-                if (seriesCustomLimit.size() == results) break;
-                seriesCustomLimit.add(series);
+        while (seriesCustomLimit.size() < resultsPerPage) {
+            addQueryParam(builder, pageUrl, String.valueOf(page));
+            URL url = new URL(builder.toString());
+            JsonNode series = objectMapper(url).get("results");
+            if (series.isEmpty()) {
+                break;
+            }
+            for (JsonNode singleSeries : series) {
+                if (seriesCustomLimit.size() == resultsPerPage) break;
+                seriesCustomLimit.add(singleSeries);
             }
             page++;
         }

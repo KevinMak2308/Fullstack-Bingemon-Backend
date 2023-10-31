@@ -51,15 +51,15 @@ public class PersonController {
         return new ResponseEntity<>(people, HttpStatus.OK);
     }
 
-    @GetMapping("/popular")
-    public ResponseEntity<?> getPopularPeople(@RequestParam(required = false) Integer page) {
-        List<JsonNode> people = personService.getPopularPeople(page);
+    @GetMapping({"/popular", "/popular/{results_per_page}"})
+    public ResponseEntity<?> getPopularPeople(@PathVariable(required = false) Integer results_per_page, @RequestParam(required = false) Integer page) {
+        List<JsonNode> people = personService.getPopularPeople(results_per_page, page);
         return new ResponseEntity<>(people, HttpStatus.OK);
     }
 
-    @GetMapping("/directors")
-    public ResponseEntity<?> getDirectors() {
-        List<JsonNode> directors = personService.getDirectors();
+    @GetMapping({"/directors", "/directors/{results_per_page}"})
+    public ResponseEntity<?> getDirectors(@PathVariable(required = false) Integer results_per_page) {
+        List<JsonNode> directors = personService.getDirectors(results_per_page);
         return new ResponseEntity<>(directors, HttpStatus.OK);
     }
 }

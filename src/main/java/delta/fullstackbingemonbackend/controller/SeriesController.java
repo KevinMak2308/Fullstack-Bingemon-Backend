@@ -46,21 +46,12 @@ public class SeriesController {
         return new ResponseEntity<>(Series, HttpStatus.OK);
     }
 
-    @GetMapping("/discover")
-    public ResponseEntity<?> discoverSeries(@RequestParam(required = false) String genres, @RequestParam(required = false) String decade,
-                                            @RequestParam(required = false) String language, @RequestParam(required = false) String original_language,
-                                            @RequestParam(required = false) String watch_region, @RequestParam(required = false) String watch_providers,
-                                            @RequestParam(required = false) String sort_by, @RequestParam(required = false) Integer page) {
-        JsonNode Series = seriesService.discoverSeries(genres, decade, language, original_language, watch_region, watch_providers, sort_by, page);
-        return new ResponseEntity<>(Series, HttpStatus.OK);
-    }
-
-    @GetMapping("/discover/{results_per_page}")
+    @GetMapping({"/discover", "/discover/{results_per_page}"})
     public ResponseEntity<?> discoverSeries(@PathVariable Integer results_per_page, @RequestParam(required = false) String genres, @RequestParam(required = false) String decade,
                                             @RequestParam(required = false) String language, @RequestParam(required = false) String original_language,
                                             @RequestParam(required = false) String watch_region, @RequestParam(required = false) String watch_providers,
                                             @RequestParam(required = false) String sort_by, @RequestParam(required = false) Integer page) {
-        List<JsonNode> Series = seriesService.discoverCustomAmountOfSeries(results_per_page, genres, decade, language, original_language, watch_region, watch_providers, sort_by, page);
+        List<JsonNode> Series = seriesService.discoverSeries(results_per_page, genres, decade, language, original_language, watch_region, watch_providers, sort_by, page);
         return new ResponseEntity<>(Series, HttpStatus.OK);
     }
 }

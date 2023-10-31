@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -16,7 +14,7 @@ public class JsonWebToken {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt_expiration}")
+    @Value("${jwt.expiration}")
     private Long expiration;
 
     public String generateJWT(String username) {
