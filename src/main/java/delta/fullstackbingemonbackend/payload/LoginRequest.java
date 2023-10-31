@@ -2,21 +2,13 @@ package delta.fullstackbingemonbackend.payload;
 
 import lombok.*;
 
-import javax.validation.constraints.*;
-
 @Getter
 @Setter
-public class SignupRequest {
+public class LoginRequest {
 
     @NonNull
-    @Size(max = 40)
     private String username;
 
     @NonNull
-    @Size(max = 255)
     private String password;
-
-    @NonNull
-    @Size(max = 255)
-    private String email;
 }

@@ -28,6 +28,10 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    @NonNull
+    @Column(name = "email")
+    private String email;
+
     public User(){}
 
     @Override
