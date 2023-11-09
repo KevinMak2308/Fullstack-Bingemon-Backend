@@ -2,6 +2,7 @@ package delta.fullstackbingemonbackend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,8 @@ public class MovieService {
 
     private final String queryUrl = "&query=";
     private final String movieDetailsUrl = "&append_to_response=credits,videos,images";
+    private final String backdropUrl = "&append_to_response=images";
+    private final String imageUrl = "https://image.tmdb.org/t/p/original";
     private final String recommendedMoviesUrl = "/recommendations";
     private final String movieWatchProvidersUrl = "/watch/providers";
 
@@ -61,8 +64,7 @@ public class MovieService {
     public JsonNode getMovieTrailer(Integer id) {
         URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + movieDetailsUrl);
         JsonNode movie = objectMapper(url);
-        JsonNode videos = movie.get("videos");
-        JsonNode results = videos.get("results");
+        JsonNode results = movie.get("videos").get("results");
         List<JsonNode> videoList = new ArrayList<>();
         if (results != null && results.isArray()) {
             for (JsonNode video : results) {
@@ -72,12 +74,22 @@ public class MovieService {
         return videoList.get(0);
     }
     @SneakyThrows
-    public JsonNode getMovieBackdrop(Integer id) {
-        URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + movieDetailsUrl);
-        JsonNode movie = objectMapper(url);
-        JsonNode images = movie.get("images");
-        JsonNode backdrops = images.get("backdrops");
-        return backdrops.get(0);
+    public List<JsonNode> getMovieBackdrops(Integer id) {
+        URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + backdropUrl);
+        JsonNode backdrops = objectMapper(url).get("images").get("backdrops");
+        List<JsonNode> backdropList = new ArrayList<>();
+        if (backdrops != null && backdrops.isArray()) {
+            for (JsonNode backdrop : backdrops) {
+                if (backdrop.get("iso_639_1").asText().trim().equalsIgnoreCase("null") && backdrop.get("aspect_ratio").asText().equalsIgnoreCase("1.778")) {
+                    String filePath = backdrop.get("file_path").asText();
+                    if (filePath.startsWith("/")) {
+                        ((ObjectNode) backdrop).put("file_path", imageUrl + filePath);
+                    }
+                    backdropList.add(backdrop);
+                }
+            }
+        }
+        return backdropList;
     }
 
     @SneakyThrows
@@ -113,9 +125,7 @@ public class MovieService {
     @SneakyThrows
     public JsonNode getAllGenres() {
         URL url = new URL(baseUrl + genresUrl + apikeyUrl + apikey);
-        System.out.println(url);
-        JsonNode genres = objectMapper(url);
-        return genres;
+        return objectMapper(url);
     }
 
     @SneakyThrows
@@ -142,14 +152,14 @@ public class MovieService {
     }
 
     @SneakyThrows
-    public List<JsonNode> searchMovieCollections(Integer results, String query, Integer page) {
-        if (results == null) results = 20;
+    public List<JsonNode> searchMovieCollections(Integer resultsPerPage, String query, Integer page) {
+        if (resultsPerPage == null) resultsPerPage = 20;
         if (query != "") query = query.replaceAll(" ", "%20");
         if (page == null || page == 0) page = 1;
         StringBuilder builder = new StringBuilder(baseUrl + searchCollectionUrl + apikeyUrl + apikey);
         addQueryParam(builder, queryUrl, query);
         List<JsonNode> collectionsCustomLimit = new ArrayList<>();
-        while (collectionsCustomLimit.size() < results) {
+        while (collectionsCustomLimit.size() < resultsPerPage) {
             addQueryParam(builder, pageUrl, String.valueOf(page));
             URL url = new URL(builder.toString());
             JsonNode collections = objectMapper(url).get("results");
@@ -157,7 +167,7 @@ public class MovieService {
                 break;
             }
             for (JsonNode collection : collections) {
-                if (collectionsCustomLimit.size() == results || collection == null) break;
+                if (collectionsCustomLimit.size() == resultsPerPage || collection == null) break;
                 collectionsCustomLimit.add(collection);
             }
             page++;

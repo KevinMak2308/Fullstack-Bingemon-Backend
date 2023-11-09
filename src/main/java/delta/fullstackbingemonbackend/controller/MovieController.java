@@ -34,10 +34,10 @@ public class MovieController {
         return new ResponseEntity<>(trailer, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/backdrop")
-    public ResponseEntity<?> getMovieBackdrop(@PathVariable Integer id) {
-        JsonNode backdrop = movieService.getMovieBackdrop(id);
-        return new ResponseEntity<>(backdrop, HttpStatus.OK);
+    @GetMapping("/{id}/backdrops")
+    public ResponseEntity<?> getMovieBackdrops(@PathVariable Integer id) {
+        List<JsonNode> backdrops = movieService.getMovieBackdrops(id);
+        return new ResponseEntity<>(backdrops, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/providers/{region}")
@@ -70,8 +70,8 @@ public class MovieController {
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
-    @GetMapping({"/discover", "/collection/search/{results_per_page}"})
-    public ResponseEntity<?> searchMovieCollectionsFixed(@PathVariable Integer results_per_page, @RequestParam(required = false) String query, @RequestParam(required = false) Integer page) {
+    @GetMapping({"/collection/search", "/collection/search/{results_per_page}"})
+    public ResponseEntity<?> searchMovieCollections(@PathVariable(required = false) Integer results_per_page, @RequestParam(required = false) String query, @RequestParam(required = false) Integer page) {
         List<JsonNode> collections = movieService.searchMovieCollections(results_per_page, query, page);
         return new ResponseEntity<>(collections, HttpStatus.OK);
     }
@@ -84,7 +84,6 @@ public class MovieController {
                                             @RequestParam(required = false) String watch_region, @RequestParam(required = false) String watch_providers,
                                             @RequestParam(required = false) String sort_by, @RequestParam(required = false) Integer page) {
         List<JsonNode> movies = movieService.discoverMovies(results_per_page, genres, decade, language, original_language, cast, crew, watch_region, watch_providers, sort_by, page);
-        System.out.println(movies);
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 }
