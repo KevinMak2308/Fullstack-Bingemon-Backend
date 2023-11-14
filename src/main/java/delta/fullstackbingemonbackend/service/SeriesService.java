@@ -2,6 +2,7 @@ package delta.fullstackbingemonbackend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,10 @@ public class SeriesService {
     private final String pageUrl = "&page=";
 
     private final String queryUrl = "&query=";
-    private final String seriesDetailsUrl = "&append_to_response=credits,videos,images";
+    private final String seriesDetailsUrl = "&append_to_response=credits,videos";
+    private final String backdropUrl = "&append_to_response=images";
+    private final String imageUrl = "https://image.tmdb.org/t/p/original";
+
 
     // Series url sammensætning: baseurl -> seriesurl -> id -> apikeyurl -> apikey
     // discover url sammensætning: baseurl -> discoverurl -> apikeyurl -> apikey
@@ -47,6 +51,39 @@ public class SeriesService {
     public JsonNode getSeries(Integer id) {
         URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey + seriesDetailsUrl);
         return objectMapper(url);
+    }
+
+    @SneakyThrows
+    public JsonNode getSeriesTrailer(Integer id) {
+        URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey + seriesDetailsUrl);
+        JsonNode movie = objectMapper(url);
+        JsonNode results = movie.get("videos").get("results");
+        List<JsonNode> videoList = new ArrayList<>();
+        if (results != null && results.isArray()) {
+            for (JsonNode video : results) {
+                if (video.get("type").asText().trim().equalsIgnoreCase("Trailer") && video.get("official").asText().equalsIgnoreCase("true")) videoList.add(video);
+            }
+        }
+        return videoList.get(0);
+    }
+
+    @SneakyThrows
+    public List<JsonNode> getSeriesBackdrops(Integer id) {
+        URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey + backdropUrl);
+        JsonNode backdrops = objectMapper(url).get("images").get("backdrops");
+        List<JsonNode> backdropList = new ArrayList<>();
+        if (backdrops != null && backdrops.isArray()) {
+            for (JsonNode backdrop : backdrops) {
+                if (backdrop.get("iso_639_1").asText().trim().equalsIgnoreCase("null") && backdrop.get("aspect_ratio").asText().equalsIgnoreCase("1.778")) {
+                    String filePath = backdrop.get("file_path").asText();
+                    if (filePath.startsWith("/")) {
+                        ((ObjectNode) backdrop).put("file_path", imageUrl + filePath);
+                    }
+                    backdropList.add(backdrop);
+                }
+            }
+        }
+        return backdropList;
     }
 
     @SneakyThrows

@@ -28,7 +28,19 @@ public class SeriesController {
         return new ResponseEntity<>(Series, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/season/{seasonId}")
+    @GetMapping("/{id}/trailer")
+    public ResponseEntity<?> getSeriesTrailer(@PathVariable Integer id) {
+        JsonNode trailer = seriesService.getSeriesTrailer(id);
+        return new ResponseEntity<>(trailer, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/backdrops")
+    public ResponseEntity<?> getSeriesBackdrops(@PathVariable Integer id) {
+        List<JsonNode> backdrops = seriesService.getSeriesBackdrops(id);
+        return new ResponseEntity<>(backdrops, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/season/{seasonNumber}")
     public ResponseEntity<?> getSeriesSeason(@PathVariable Integer id, @PathVariable Integer seasonNumber) {
         JsonNode Series = seriesService.getSeriesSeason(id, seasonNumber);
         return new ResponseEntity<>(Series, HttpStatus.OK);

@@ -57,14 +57,14 @@ public class PersonService {
         JsonNode moviesCredits = objectMapper(url).get("cast");
         List<JsonNode> creditList = new ArrayList<>();
         if (moviesCredits != null && moviesCredits.isArray()) {
-            for (JsonNode tvSeries : moviesCredits) {
-                creditList.add(tvSeries);
+            for (JsonNode movie : moviesCredits) {
+                creditList.add(movie);
             }
         }
         Collections.sort(creditList, (movie1, movie2) -> {
-            int popularity1 = movie1.get("episode_count").asInt();
-            int popularity2 = movie2.get("episode_count").asInt();
-            return Integer.compare(popularity2, popularity1);
+            double popularity1 = movie1.get("popularity").asDouble();
+            double popularity2 = movie2.get("popularity").asDouble();
+            return Double.compare(popularity2, popularity1);
         });
         return creditList;
     }
@@ -80,9 +80,9 @@ public class PersonService {
             }
         }
         Collections.sort(creditList, (series1, series2) -> {
-            int popularity1 = series1.get("episode_count").asInt();
-            int popularity2 = series2.get("episode_count").asInt();
-            return Integer.compare(popularity2, popularity1);
+            double popularity1 = series1.get("popularity").asDouble();
+            double popularity2 = series2.get("popularity").asDouble();
+            return Double.compare(popularity2, popularity1);
         });
         return creditList;
     }
@@ -112,10 +112,11 @@ public class PersonService {
     @SneakyThrows
     public List<JsonNode> getPopularPeople(Integer resultsPerPage, Integer page) {
         if (resultsPerPage == null) resultsPerPage = 20;
+        if (page == null || page == 0) page = 1;
         StringBuilder builder = new StringBuilder(baseUrl + popularPeopleUrl + apikeyUrl + apikey);
         List<JsonNode> peopleList = new ArrayList<>();
         while (peopleList.size() < resultsPerPage) {
-            addQueryParam(builder, pageUrl, String.valueOf(page));
+            if (page != null) addQueryParam(builder, pageUrl, String.valueOf(page));
             URL url = new URL(builder.toString());
             JsonNode people = objectMapper(url).get("results");
             if (people.isEmpty()) {
@@ -125,6 +126,7 @@ public class PersonService {
                 if (peopleList.size() == resultsPerPage) break;
                 ObjectMapper mapper = new ObjectMapper();
                 ObjectNode newPerson = mapper.createObjectNode();
+                newPerson.put("id", person.get("id"));
                 newPerson.put("name", person.get("name"));
                 newPerson.put("profile_path", person.get("profile_path"));
                 newPerson.put("popularity", person.get("popularity"));

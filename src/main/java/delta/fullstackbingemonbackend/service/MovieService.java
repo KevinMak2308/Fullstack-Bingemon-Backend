@@ -45,9 +45,11 @@ public class MovieService {
     private final String pageUrl = "&page=";
 
     private final String queryUrl = "&query=";
-    private final String movieDetailsUrl = "&append_to_response=credits,videos,images";
+    private final String movieDetailsUrl = "&append_to_response=credits,videos";
     private final String backdropUrl = "&append_to_response=images";
     private final String imageUrl = "https://image.tmdb.org/t/p/original";
+    private final String discoverImageUrl = "https://image.tmdb.org/t/p/w300";
+    private final String youtubeVideoUrl = "https://www.youtube.com/watch?v=";
     private final String recommendedMoviesUrl = "/recommendations";
     private final String movieWatchProvidersUrl = "/watch/providers";
 
@@ -63,12 +65,15 @@ public class MovieService {
     @SneakyThrows
     public JsonNode getMovieTrailer(Integer id) {
         URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + movieDetailsUrl);
-        JsonNode movie = objectMapper(url);
-        JsonNode results = movie.get("videos").get("results");
+        JsonNode results = objectMapper(url).get("videos").get("results");
         List<JsonNode> videoList = new ArrayList<>();
         if (results != null && results.isArray()) {
-            for (JsonNode video : results) {
-                if (video.get("type").asText().trim().equalsIgnoreCase("Trailer") && video.get("official").asText().equalsIgnoreCase("true")) videoList.add(video);
+            for (JsonNode trailer : results) {
+                if (trailer.get("type").asText().trim().equalsIgnoreCase("Trailer") && trailer.get("official").asText().equalsIgnoreCase("true")) {
+                    String key = trailer.get("key").asText();
+                    ((ObjectNode) trailer).put("key", youtubeVideoUrl + key);
+                    videoList.add(trailer);
+                }
             }
         }
         return videoList.get(0);
@@ -80,11 +85,12 @@ public class MovieService {
         List<JsonNode> backdropList = new ArrayList<>();
         if (backdrops != null && backdrops.isArray()) {
             for (JsonNode backdrop : backdrops) {
-                if (backdrop.get("iso_639_1").asText().trim().equalsIgnoreCase("null") && backdrop.get("aspect_ratio").asText().equalsIgnoreCase("1.778")) {
+                if (backdrop.get("iso_639_1").asText().trim().equalsIgnoreCase("null") && backdrop.get("aspect_ratio").asText().equalsIgnoreCase("1.778") && backdrop.get("height").asInt() >= 1080) {
                     String filePath = backdrop.get("file_path").asText();
                     if (filePath.startsWith("/")) {
                         ((ObjectNode) backdrop).put("file_path", imageUrl + filePath);
                     }
+                    System.out.println(backdrop.get("height").asInt());
                     backdropList.add(backdrop);
                 }
             }
@@ -204,7 +210,12 @@ public class MovieService {
             }
             for (JsonNode movie : movies) {
                 if (moviesCustomLimit.size() == resultsPerPage) break;
-                moviesCustomLimit.add(movie);
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode movieJsonNode = objectMapper.createObjectNode();
+                movieJsonNode.put("id", movie.get("id").asInt());
+                movieJsonNode.put("title", movie.get("title").asText());
+                movieJsonNode.put("poster_path", discoverImageUrl + movie.get("poster_path").asText());
+                moviesCustomLimit.add(movieJsonNode);
             }
             page++;
         }
