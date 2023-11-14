@@ -45,10 +45,11 @@ public class MovieService {
     private final String pageUrl = "&page=";
 
     private final String queryUrl = "&query=";
-    private final String movieDetailsUrl = "&append_to_response=credits,videos";
+    private final String movieDetailsUrl = "&append_to_response=videos";
+    private final String movieCastUrl = "&append_to_response=credits";
     private final String backdropUrl = "&append_to_response=images";
     private final String imageUrl = "https://image.tmdb.org/t/p/original";
-    private final String discoverImageUrl = "https://image.tmdb.org/t/p/w300";
+    private final String smallImageUrl = "https://image.tmdb.org/t/p/w300";
     private final String youtubeVideoUrl = "https://www.youtube.com/watch?v=";
     private final String recommendedMoviesUrl = "/recommendations";
     private final String movieWatchProvidersUrl = "/watch/providers";
@@ -60,6 +61,38 @@ public class MovieService {
     public JsonNode getMovie(Integer id) {
         URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + movieDetailsUrl);
         return objectMapper(url);
+    }
+
+    @SneakyThrows
+    public List<JsonNode> getMovieCast(Integer id) {
+        URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + movieCastUrl);
+        JsonNode cast = objectMapper(url).get("credits").get("cast");
+        List<JsonNode> castList = new ArrayList<>();
+        if (cast != null && cast.isArray()) {
+            for (JsonNode actor : cast) {
+                if (actor.get("known_for_department").asText().equalsIgnoreCase("Acting")) {
+                    ((ObjectNode) actor).put("profile_path", smallImageUrl + actor.get("profile_path").asText());
+                    castList.add(actor);
+                }
+            }
+        }
+        return castList;
+    }
+
+    @SneakyThrows
+    public List<JsonNode> getMovieDirectors(Integer id) {
+        URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + movieCastUrl);
+        JsonNode directors = objectMapper(url).get("credits").get("cast");
+        List<JsonNode> directorList = new ArrayList<>();
+        if (directors != null && directors.isArray()) {
+            for (JsonNode director : directors) {
+                if (director.get("known_for_department").asText().equalsIgnoreCase("Directing")) {
+                    ((ObjectNode) director).put("profile_path", smallImageUrl + director.get("profile_path").asText());
+                    directorList.add(director);
+                }
+            }
+        }
+        return directorList;
     }
 
     @SneakyThrows
@@ -214,7 +247,7 @@ public class MovieService {
                 ObjectNode movieJsonNode = objectMapper.createObjectNode();
                 movieJsonNode.put("id", movie.get("id").asInt());
                 movieJsonNode.put("title", movie.get("title").asText());
-                movieJsonNode.put("poster_path", discoverImageUrl + movie.get("poster_path").asText());
+                movieJsonNode.put("poster_path", smallImageUrl + movie.get("poster_path").asText());
                 moviesCustomLimit.add(movieJsonNode);
             }
             page++;
