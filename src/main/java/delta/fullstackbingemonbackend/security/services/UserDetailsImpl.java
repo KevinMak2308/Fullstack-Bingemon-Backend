@@ -1,4 +1,4 @@
-package delta.fullstackbingemonbackend.payload;
+package delta.fullstackbingemonbackend.security.services;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,7 +7,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
-public class UserDetailsAuthentication implements UserDetails {
+public class UserDetailsImpl implements UserDetails {
 
     @NonNull
     private Long id;
@@ -23,7 +23,7 @@ public class UserDetailsAuthentication implements UserDetails {
     //Example authorities.add(new CustomAuthority("user"));
     //Example authorities.add(new CustomAuthority("admin"));
     //Example authorities.add(new CustomAuthority("premium"));
-    public UserDetailsAuthentication(String username, String password) {
+    public UserDetailsImpl(String username, String password) {
         this.username = username;
         this.password = password;
     }

@@ -1,8 +1,12 @@
-package delta.fullstackbingemonbackend.payload;
+package delta.fullstackbingemonbackend.security.jwt;
 
+import delta.fullstackbingemonbackend.security.services.UserDetailsImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +15,7 @@ import java.util.UUID;
 
 @Component
 public class JsonWebToken {
+    private final Logger logger = LoggerFactory.getLogger(JsonWebToken.class);
     @Value("${jwt.secret}")
     private String secret;
 
@@ -18,25 +23,31 @@ public class JsonWebToken {
     private Long expiration;
 
     public String generateJWT(String username) {
-        Date date = new Date();
-        Date expirationDate = new Date(date.getTime() + expiration);
-        String newJWT = Jwts.builder()
+        return Jwts.builder()
                 .setId(UUID.randomUUID().toString())
                 .setSubject(username)
                 .signWith(SignatureAlgorithm.HS256, secret)
-                .setIssuedAt(date)
-                .setExpiration(expirationDate)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(new Date().getTime() + expiration))
                 .compact();
-        System.out.println("What does the Json Web Token look like?: " + newJWT);
-        return newJWT;
     }
 
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parser()
+        return Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
+                .getBody()
+                .getSubject();
+    }
+
+    public boolean validateJWT(String authenticateToken) {
+        try {
+            Jwts.parser().setSigningKey(secret).parseClaimsJws(authenticateToken);
+            return true;
+        } catch (SignatureException error) {
+            logger.error("Invalid JWT secret: {}", error.getMessage());
+            return false;
+        }
     }
 
     public Date getExpirationDateFromToken(String token) {
@@ -52,8 +63,8 @@ public class JsonWebToken {
         return expirationDate.before(new Date());
     }
 
-    public boolean isTokenValid(String token, UserDetailsAuthentication userDetailsAuthentication) {
+    public boolean isTokenValid(String token, UserDetailsImpl userDetailsImpl) {
         String username = getUsernameFromToken(token);
-        return (username.equals(userDetailsAuthentication.getUsername()) && !isTokenExpired(token));
+        return (username.equals(userDetailsImpl.getUsername()) && !isTokenExpired(token));
     }
 }

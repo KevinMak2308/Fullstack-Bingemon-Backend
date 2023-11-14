@@ -1,12 +1,13 @@
 package delta.fullstackbingemonbackend.controller;
 
 import delta.fullstackbingemonbackend.model.User;
-import delta.fullstackbingemonbackend.payload.JsonWebToken;
-import delta.fullstackbingemonbackend.payload.LoginRequest;
-import delta.fullstackbingemonbackend.payload.SignupRequest;
+import delta.fullstackbingemonbackend.security.jwt.JsonWebToken;
+import delta.fullstackbingemonbackend.security.payload.LoginRequest;
+import delta.fullstackbingemonbackend.security.payload.SignupRequest;
 import delta.fullstackbingemonbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -55,13 +58,20 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String token = jsonWebToken.generateJWT(loginRequest.getUsername());
+            String token = jsonWebToken.generateJWT(loginRequest.getUsername());
 
-        System.out.println("What does the loginResponse contains?: " + token);
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, "user=" + token).body("Login was successful");
+            System.out.println("What does the loginResponse contains?: " + token);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Login was successful");
+            response.put("token", token);
+            return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, token).body(response);
+        } catch (Exception error) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication Failed: " + error.getMessage());
+        }
     }
 
     @PostMapping("/logout")

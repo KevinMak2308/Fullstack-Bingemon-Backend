@@ -1,8 +1,7 @@
 package delta.fullstackbingemonbackend.config;
 
-import delta.fullstackbingemonbackend.payload.JsonWebToken;
-import delta.fullstackbingemonbackend.payload.UserDetailsAuthentication;
-import delta.fullstackbingemonbackend.service.UserDetailsServiceAuthentication;
+import delta.fullstackbingemonbackend.security.jwt.TokenValidationFilter;
+import delta.fullstackbingemonbackend.security.services.UserDetailsServiceImpl;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,16 +14,20 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
 
     @Autowired
-    private UserDetailsServiceAuthentication userDetailsServiceAuthentication;
+    private UserDetailsServiceImpl userDetailsServiceImpl;
 
-    public SecurityConfiguration(UserDetailsServiceAuthentication userDetailsServiceAuthentication) {
-        this.userDetailsServiceAuthentication = userDetailsServiceAuthentication;
+
+    public SecurityConfiguration(UserDetailsServiceImpl userDetailsServiceImpl) {
+        this.userDetailsServiceImpl = userDetailsServiceImpl;
+
     }
 
     @Bean
@@ -33,11 +36,17 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    public TokenValidationFilter tokenValidationFilter() {
+        return new TokenValidationFilter();
+    }
+
+    @Bean
     @SneakyThrows
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         return http.cors().disable()
                 .csrf().disable()
                 .authorizeHttpRequests().antMatchers("/auth/**").permitAll().and()
+                .addFilterBefore(tokenValidationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
@@ -51,7 +60,7 @@ public class SecurityConfiguration {
     @SneakyThrows
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsServiceAuthentication);
+        authenticationProvider.setUserDetailsService(userDetailsServiceImpl);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }

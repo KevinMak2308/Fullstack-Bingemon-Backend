@@ -1,4 +1,4 @@
-package delta.fullstackbingemonbackend.payload;
+package delta.fullstackbingemonbackend.security.payload;
 
 import lombok.*;
 
