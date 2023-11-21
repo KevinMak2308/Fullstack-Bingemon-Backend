@@ -81,13 +81,13 @@ public class SeriesService {
     public List<JsonNode> getSeriesCreators(Integer id) {
         URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey);
         JsonNode creators = objectMapper(url).get("created_by");
-        List<JsonNode> createdByList = new ArrayList<>();
+        List<JsonNode> creatorList = new ArrayList<>();
         if (creators != null && creators.isArray()) {
             for (JsonNode creator : creators) {
-                createdByList.add(creator);
+                creatorList.add(creator);
             }
         }
-        return createdByList;
+        return creatorList;
     }
 
     @SneakyThrows
