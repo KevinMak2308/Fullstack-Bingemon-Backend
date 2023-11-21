@@ -23,7 +23,7 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/auth")
+@RequestMapping("api/auth")
 public class AuthController {
     private UserService userService;
     private PasswordEncoder passwordEncoder;

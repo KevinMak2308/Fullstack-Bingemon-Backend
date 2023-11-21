@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/series")
+@RequestMapping("api/series")
 public class SeriesController {
 
     private SeriesService seriesService;
