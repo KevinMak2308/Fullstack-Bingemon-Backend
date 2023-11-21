@@ -28,6 +28,12 @@ public class SeriesController {
         return new ResponseEntity<>(Series, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}/cast")
+    public ResponseEntity<?> getMovieCast(@PathVariable Integer id) {
+        List<JsonNode> cast = seriesService.getSeriesCast(id);
+        return new ResponseEntity<>(cast, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}/trailer")
     public ResponseEntity<?> getSeriesTrailer(@PathVariable Integer id) {
         JsonNode trailer = seriesService.getSeriesTrailer(id);
@@ -43,6 +49,12 @@ public class SeriesController {
     @GetMapping("/{id}/season/{seasonNumber}")
     public ResponseEntity<?> getSeriesSeason(@PathVariable Integer id, @PathVariable Integer seasonNumber) {
         JsonNode Series = seriesService.getSeriesSeason(id, seasonNumber);
+        return new ResponseEntity<>(Series, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/seasons")
+    public ResponseEntity<?> getSeriesSeasons(@PathVariable Integer id) {
+        List<JsonNode> Series = seriesService.getSeriesSeasons(id);
         return new ResponseEntity<>(Series, HttpStatus.OK);
     }
 

@@ -123,7 +123,6 @@ public class MovieService {
                     if (filePath.startsWith("/")) {
                         ((ObjectNode) backdrop).put("file_path", imageUrl + filePath);
                     }
-                    System.out.println(backdrop.get("height").asInt());
                     backdropList.add(backdrop);
                 }
             }

@@ -40,8 +40,11 @@ public class SeriesService {
 
     private final String queryUrl = "&query=";
     private final String seriesDetailsUrl = "&append_to_response=credits,videos";
+    private final String seriesCastUrl = "&append_to_response=credits";
     private final String backdropUrl = "&append_to_response=images";
     private final String imageUrl = "https://image.tmdb.org/t/p/original";
+    private final String smallImageUrl = "https://image.tmdb.org/t/p/w300";
+    private final String youtubeVideoUrl = "https://www.youtube.com/watch?v=";
 
 
     // Series url sammensætning: baseurl -> seriesurl -> id -> apikeyurl -> apikey
@@ -54,14 +57,34 @@ public class SeriesService {
     }
 
     @SneakyThrows
+    public List<JsonNode> getSeriesCast(Integer id) {
+        URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey + seriesCastUrl);
+        JsonNode cast = objectMapper(url).get("credits").get("cast");
+        List<JsonNode> castList = new ArrayList<>();
+        if (cast != null && cast.isArray()) {
+            for (JsonNode actor : cast) {
+                if (actor.get("known_for_department").asText().equalsIgnoreCase("Acting")) {
+                    ((ObjectNode) actor).put("profile_path", smallImageUrl + actor.get("profile_path").asText());
+                    castList.add(actor);
+                }
+            }
+        }
+        return castList;
+    }
+
+    @SneakyThrows
     public JsonNode getSeriesTrailer(Integer id) {
         URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey + seriesDetailsUrl);
         JsonNode movie = objectMapper(url);
         JsonNode results = movie.get("videos").get("results");
         List<JsonNode> videoList = new ArrayList<>();
         if (results != null && results.isArray()) {
-            for (JsonNode video : results) {
-                if (video.get("type").asText().trim().equalsIgnoreCase("Trailer") && video.get("official").asText().equalsIgnoreCase("true")) videoList.add(video);
+            for (JsonNode trailer : results) {
+                if (trailer.get("type").asText().trim().equalsIgnoreCase("Trailer") && trailer.get("official").asText().equalsIgnoreCase("true")){
+                    String key = trailer.get("key").asText();
+                    ((ObjectNode) trailer).put("key", youtubeVideoUrl + key);
+                    videoList.add(trailer);
+                }
             }
         }
         return videoList.get(0);
@@ -84,6 +107,23 @@ public class SeriesService {
             }
         }
         return backdropList;
+    }
+
+    @SneakyThrows
+    public List<JsonNode> getSeriesSeasons(Integer id) {
+        URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey + backdropUrl);
+        JsonNode seasons = objectMapper(url).get("seasons");
+        List<JsonNode> seasonList = new ArrayList<>();
+        if (seasons != null && seasons.isArray()) {
+            for (JsonNode season : seasons) {
+                String posterPath = season.get("poster_path").asText();
+                if (season.get("season_number").asInt() > 0) {
+                    ((ObjectNode) season).put("poster_path", imageUrl + posterPath);
+                    seasonList.add(season);
+                }
+            }
+        }
+        return seasonList;
     }
 
     @SneakyThrows
