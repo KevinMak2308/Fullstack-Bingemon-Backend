@@ -45,7 +45,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         return http.cors().disable()
                 .csrf().disable()
-                .authorizeHttpRequests().antMatchers("/auth/**").permitAll().and()
+                .authorizeHttpRequests().antMatchers("api/auth/**").permitAll().and()
                 .addFilterBefore(tokenValidationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
