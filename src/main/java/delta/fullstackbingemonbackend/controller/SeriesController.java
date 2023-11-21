@@ -29,9 +29,15 @@ public class SeriesController {
     }
 
     @GetMapping("/{id}/cast")
-    public ResponseEntity<?> getMovieCast(@PathVariable Integer id) {
+    public ResponseEntity<?> getSeriesCast(@PathVariable Integer id) {
         List<JsonNode> cast = seriesService.getSeriesCast(id);
         return new ResponseEntity<>(cast, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/creators")
+    public ResponseEntity<?> getSeriesCreators(@PathVariable Integer id) {
+        List<JsonNode> creators = seriesService.getSeriesCreators(id);
+        return new ResponseEntity<>(creators, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/trailer")

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -45,8 +46,8 @@ public class MovieService {
     private final String pageUrl = "&page=";
 
     private final String queryUrl = "&query=";
-    private final String movieDetailsUrl = "&append_to_response=videos";
-    private final String movieCastUrl = "&append_to_response=credits";
+    private final String movieVideosUrl = "/videos";
+    private final String movieCastUrl = "/credits";
     private final String backdropUrl = "&append_to_response=images";
     private final String imageUrl = "https://image.tmdb.org/t/p/original";
     private final String smallImageUrl = "https://image.tmdb.org/t/p/w300";
@@ -59,46 +60,44 @@ public class MovieService {
 
     @SneakyThrows
     public JsonNode getMovie(Integer id) {
-        URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + movieDetailsUrl);
+        URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey);
         return objectMapper(url);
     }
 
     @SneakyThrows
-    public List<JsonNode> getMovieCast(Integer id) {
-        URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + movieCastUrl);
-        JsonNode cast = objectMapper(url).get("credits").get("cast");
-        List<JsonNode> castList = new ArrayList<>();
+    public JsonNode getMovieCast(Integer id) {
+        URL url = new URL(baseUrl + movieUrl + id + movieCastUrl + apikeyUrl + apikey);
+        JsonNode cast = objectMapper(url).get("cast");
         if (cast != null && cast.isArray()) {
             for (JsonNode actor : cast) {
-                if (actor.get("known_for_department").asText().equalsIgnoreCase("Acting")) {
-                    ((ObjectNode) actor).put("profile_path", smallImageUrl + actor.get("profile_path").asText());
-                    castList.add(actor);
-                }
+                ((ObjectNode) actor).put("profile_path", smallImageUrl + actor.get("profile_path").asText());
             }
         }
-        return castList;
+        return cast;
     }
 
     @SneakyThrows
-    public List<JsonNode> getMovieDirectors(Integer id) {
-        URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + movieCastUrl);
-        JsonNode directors = objectMapper(url).get("credits").get("cast");
-        List<JsonNode> directorList = new ArrayList<>();
+    public JsonNode getMovieDirectors(Integer id) {
+        URL url = new URL(baseUrl + movieUrl + id + movieCastUrl + apikeyUrl + apikey);
+        JsonNode directors = objectMapper(url).get("crew");
         if (directors != null && directors.isArray()) {
-            for (JsonNode director : directors) {
-                if (director.get("known_for_department").asText().equalsIgnoreCase("Directing")) {
+            Iterator<JsonNode> iterator = directors.iterator();
+            while (iterator.hasNext()) {
+                JsonNode director = iterator.next();
+                if (!director.has("job") || !director.get("job").asText().equalsIgnoreCase("Director")) {
+                    iterator.remove();
+                } else {
                     ((ObjectNode) director).put("profile_path", smallImageUrl + director.get("profile_path").asText());
-                    directorList.add(director);
                 }
             }
         }
-        return directorList;
+        return directors;
     }
 
     @SneakyThrows
     public JsonNode getMovieTrailer(Integer id) {
-        URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + movieDetailsUrl);
-        JsonNode results = objectMapper(url).get("videos").get("results");
+        URL url = new URL(baseUrl + movieUrl + id + movieVideosUrl + apikeyUrl + apikey);
+        JsonNode results = objectMapper(url).get("results");
         List<JsonNode> videoList = new ArrayList<>();
         if (results != null && results.isArray()) {
             for (JsonNode trailer : results) {

@@ -30,13 +30,13 @@ public class MovieController {
 
     @GetMapping("/{id}/cast")
     public ResponseEntity<?> getMovieCast(@PathVariable Integer id) {
-        List<JsonNode> cast = movieService.getMovieCast(id);
+        JsonNode cast = movieService.getMovieCast(id);
         return new ResponseEntity<>(cast, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/directors")
     public ResponseEntity<?> getMovieDirectors(@PathVariable Integer id) {
-        List<JsonNode> directors = movieService.getMovieDirectors(id);
+        JsonNode directors = movieService.getMovieDirectors(id);
         return new ResponseEntity<>(directors, HttpStatus.OK);
     }
 

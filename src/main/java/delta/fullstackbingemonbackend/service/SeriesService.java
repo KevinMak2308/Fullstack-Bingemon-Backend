@@ -39,8 +39,8 @@ public class SeriesService {
     private final String pageUrl = "&page=";
 
     private final String queryUrl = "&query=";
-    private final String seriesDetailsUrl = "&append_to_response=credits,videos";
-    private final String seriesCastUrl = "&append_to_response=credits";
+    private final String seriesTrailerUrl = "&append_to_response=videos";
+    private final String seriesCastUrl = "/aggregate_credits";
     private final String backdropUrl = "&append_to_response=images";
     private final String imageUrl = "https://image.tmdb.org/t/p/original";
     private final String smallImageUrl = "https://image.tmdb.org/t/p/w300";
@@ -52,20 +52,25 @@ public class SeriesService {
 
     @SneakyThrows
     public JsonNode getSeries(Integer id) {
-        URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey + seriesDetailsUrl);
+        URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey);
         return objectMapper(url);
     }
 
     @SneakyThrows
     public List<JsonNode> getSeriesCast(Integer id) {
-        URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey + seriesCastUrl);
-        JsonNode cast = objectMapper(url).get("credits").get("cast");
+        URL url = new URL(baseUrl + seriesUrl + id + seriesCastUrl + apikeyUrl + apikey);
+        JsonNode cast = objectMapper(url).get("cast");
         List<JsonNode> castList = new ArrayList<>();
         if (cast != null && cast.isArray()) {
+            int actorCount = 0;
             for (JsonNode actor : cast) {
                 if (actor.get("known_for_department").asText().equalsIgnoreCase("Acting")) {
                     ((ObjectNode) actor).put("profile_path", smallImageUrl + actor.get("profile_path").asText());
                     castList.add(actor);
+                    actorCount++;
+                    if (actorCount == 24) {
+                        break;
+                    }
                 }
             }
         }
@@ -73,8 +78,21 @@ public class SeriesService {
     }
 
     @SneakyThrows
+    public List<JsonNode> getSeriesCreators(Integer id) {
+        URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey);
+        JsonNode creators = objectMapper(url).get("created_by");
+        List<JsonNode> createdByList = new ArrayList<>();
+        if (creators != null && creators.isArray()) {
+            for (JsonNode creator : creators) {
+                createdByList.add(creator);
+            }
+        }
+        return createdByList;
+    }
+
+    @SneakyThrows
     public JsonNode getSeriesTrailer(Integer id) {
-        URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey + seriesDetailsUrl);
+        URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey + seriesTrailerUrl);
         JsonNode movie = objectMapper(url);
         JsonNode results = movie.get("videos").get("results");
         List<JsonNode> videoList = new ArrayList<>();
