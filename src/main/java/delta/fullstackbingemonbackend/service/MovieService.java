@@ -108,7 +108,7 @@ public class MovieService {
                 }
             }
         }
-        return videoList.get(0);
+        return videoList.isEmpty() ? null : videoList.get(0);
     }
     @SneakyThrows
     public List<JsonNode> getMovieBackdrops(Integer id) {

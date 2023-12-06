@@ -14,6 +14,10 @@ public class SignupRequest {
 
     @NonNull
     @Size(max = 255)
+    private String name;
+
+    @NonNull
+    @Size(max = 255)
     private String password;
 
     @NonNull

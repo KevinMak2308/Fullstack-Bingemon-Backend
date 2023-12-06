@@ -57,6 +57,12 @@ public class PersonController {
         return new ResponseEntity<>(people, HttpStatus.OK);
     }
 
+    @GetMapping({"/actors", "/actors/{results_per_page}"})
+    public ResponseEntity<?> getActors(@PathVariable(required = false) Integer results_per_page) {
+        List<JsonNode> actors = personService.getActors(results_per_page);
+        return new ResponseEntity<>(actors, HttpStatus.OK);
+    }
+
     @GetMapping({"/directors", "/directors/{results_per_page}"})
     public ResponseEntity<?> getDirectors(@PathVariable(required = false) Integer results_per_page) {
         List<JsonNode> directors = personService.getDirectors(results_per_page);

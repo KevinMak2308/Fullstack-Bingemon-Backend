@@ -145,7 +145,25 @@ public class PersonService {
     }
 
     @SneakyThrows
+    public List<JsonNode> getActors(Integer resultsPerPage) {
+        if (resultsPerPage == null) resultsPerPage = 20;
+        List<JsonNode> actors = new ArrayList<>();
+        Integer page = 1;
+        while (actors.size() < resultsPerPage) {
+            List<JsonNode> people = getPopularPeople(null, page);
+            for (JsonNode person : people) {
+                if (person.get("known_for_department").asText().equalsIgnoreCase("acting")) {
+                    actors.add(person);
+                }
+            }
+            page++;
+        }
+        return actors;
+    }
+
+    @SneakyThrows
     public List<JsonNode> getDirectors(Integer resultsPerPage) {
+        if (resultsPerPage == null) resultsPerPage = 5;
         List<JsonNode> directors = new ArrayList<>();
         Integer page = 1;
         while (directors.size() < resultsPerPage) {
