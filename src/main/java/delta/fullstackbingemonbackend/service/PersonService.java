@@ -10,7 +10,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class PersonService {
@@ -132,7 +131,7 @@ public class PersonService {
                 newPerson.put("name", person.get("name"));
                 JsonNode profilePath = person.get("profile_path");
                 if (profilePath != null && !profilePath.asText().isEmpty()) {
-                    ((ObjectNode) person).put("profile_path", smallImageUrl + profilePath);
+                    ((ObjectNode) person).put("profile_path", smallImageUrl + profilePath.asText());
                     newPerson.put("profile_path", person.get("profile_path"));
                 }
                 newPerson.put("popularity", person.get("popularity"));
