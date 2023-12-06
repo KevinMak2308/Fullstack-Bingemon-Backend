@@ -87,7 +87,8 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         SecurityContextHolder.clearContext();
-        response.setHeader(HttpHeaders.SET_COOKIE, "user=; Max-Age=0");
+        response.addHeader(HttpHeaders.SET_COOKIE, "user=; Max-Age=0");
+        response.addHeader(HttpHeaders.SET_COOKIE, "user_id=; Max-Age=0");
         return ResponseEntity.ok("You've been logged out");
     }
 

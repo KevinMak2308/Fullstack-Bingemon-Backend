@@ -105,7 +105,7 @@ public class SeriesService {
                 }
             }
         }
-        return videoList.get(0);
+        return videoList.isEmpty() ? null : videoList.get(0);
     }
 
     @SneakyThrows
