@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PersonService {
@@ -25,6 +26,7 @@ public class PersonService {
     private final String pageUrl = "&page=";
     private final String queryUrl = "&query=";
     private final String apikeyUrl = "?api_key=";
+    private final String smallImageUrl = "https://image.tmdb.org/t/p/w200";
 
 
     @SneakyThrows
@@ -128,7 +130,11 @@ public class PersonService {
                 ObjectNode newPerson = mapper.createObjectNode();
                 newPerson.put("id", person.get("id"));
                 newPerson.put("name", person.get("name"));
-                newPerson.put("profile_path", person.get("profile_path"));
+                JsonNode profilePath = person.get("profile_path");
+                if (profilePath != null && !profilePath.asText().isEmpty()) {
+                    ((ObjectNode) person).put("profile_path", smallImageUrl + profilePath);
+                    newPerson.put("profile_path", person.get("profile_path"));
+                }
                 newPerson.put("popularity", person.get("popularity"));
                 newPerson.put("known_for_department", person.get("known_for_department"));
                 person = mapper.treeToValue(newPerson, JsonNode.class);
