@@ -103,5 +103,6 @@ public class MovieController {
     public ResponseEntity<JsonNode> fetchMovieListForSwipe(@RequestParam(required = false) String genres, @RequestParam(required = false) String decade, @RequestParam(required = false) String original_language, @RequestParam(required = false) Integer page) {
         JsonNode movieSwipeList = movieService.getMovieListFromDiscover(genres, decade, original_language, page);
         return new ResponseEntity<>(movieSwipeList, HttpStatus.OK);
+
     }
 }

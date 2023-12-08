@@ -256,16 +256,16 @@ public class MovieService {
     }
 
 
-    public JsonNode getMovieListFromDiscover(String genres, String decade, String originalLanguage, Integer page) {
+    public JsonNode getMovieListFromDiscover(String genres, String decade, String original_language, Integer page) {
         try {
             String withPage = "&page=" + page;
             String withGenres = "&with_genres=" + genres;
             String withDecade = "&primary_release_year=" + decade;
-            String withOriginalLanguage = "&with_original_language=" + originalLanguage;
+            String withOriginalLanguage = "&with_original_language=" + original_language;
 
             if(genres == null) withGenres = "";
             if(decade == null) withDecade = "";
-            if(originalLanguage == null) withOriginalLanguage = "";
+            if(original_language == null) withOriginalLanguage = "";
             if(page == null) withPage = "";
 
             URL movieJsonArray = new URL(baseUrl + discoverUrl + apikeyUrl + apikey + withGenres + withDecade + withOriginalLanguage + withPage);
