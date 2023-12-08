@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -251,6 +253,27 @@ public class MovieService {
             page++;
         }
         return moviesCustomLimit;
+    }
+
+
+    public JsonNode getMovieListFromDiscover(String genres, String decade, String originalLanguage, Integer page) {
+        try {
+            String withPage = "&page=" + page;
+            String withGenres = "&with_genres=" + genres;
+            String withDecade = "&primary_release_year=" + decade;
+            String withOriginalLanguage = "&with_original_language=" + originalLanguage;
+
+            if(genres == null) withGenres = "";
+            if(decade == null) withDecade = "";
+            if(originalLanguage == null) withOriginalLanguage = "";
+            if(page == null) withPage = "";
+
+            URL movieJsonArray = new URL(baseUrl + discoverUrl + apikeyUrl + apikey + withGenres + withDecade + withOriginalLanguage + withPage);
+            return objectMapper(movieJsonArray);
+        } catch (MalformedURLException error) {
+            System.out.println("Something went wrong when fetching the data from the API. Check the parameters" + error.getMessage());
+        }
+        return null;
     }
 
     private void addQueryParam(StringBuilder builder, String name, String value) {

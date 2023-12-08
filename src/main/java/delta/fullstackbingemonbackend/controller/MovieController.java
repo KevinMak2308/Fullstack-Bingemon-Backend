@@ -98,4 +98,10 @@ public class MovieController {
         List<JsonNode> movies = movieService.discoverMovies(results_per_page, genres, decade, language, original_language, cast, crew, watch_region, watch_providers, sort_by, page);
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
+
+    @GetMapping("/swipe")
+    public ResponseEntity<JsonNode> fetchMovieListForSwipe(@RequestParam(required = false) String genres, @RequestParam(required = false) String decade, @RequestParam(required = false) String original_language, @RequestParam(required = false) Integer page) {
+        JsonNode movieSwipeList = movieService.getMovieListFromDiscover(genres, decade, original_language, page);
+        return new ResponseEntity<>(movieSwipeList, HttpStatus.OK);
+    }
 }
