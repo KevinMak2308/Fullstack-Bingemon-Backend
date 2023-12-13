@@ -62,7 +62,7 @@ public class MovieService {
 
     @SneakyThrows
     public JsonNode getMovie(Integer id) {
-        URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey);
+        URL url = new URL(baseUrl + movieUrl + id + apikeyUrl + apikey + "&append_to_response=credits,videos");
         return objectMapper(url);
     }
 
