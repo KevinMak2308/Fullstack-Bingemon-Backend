@@ -77,11 +77,13 @@ public class SeriesController {
     }
 
     @GetMapping({"/discover", "/discover/{results_per_page}"})
-    public ResponseEntity<?> discoverSeries(@PathVariable Integer results_per_page, @RequestParam(required = false) String genres, @RequestParam(required = false) String decade,
+    public ResponseEntity<?> discoverSeries(@PathVariable(required = false) Integer results_per_page,
+                                            @RequestParam(required = false) String genres, @RequestParam(required = false) String decade,
                                             @RequestParam(required = false) String language, @RequestParam(required = false) String original_language,
+                                            @RequestParam(required = false) String cast, @RequestParam(required = false) String crew,
                                             @RequestParam(required = false) String watch_region, @RequestParam(required = false) String watch_providers,
                                             @RequestParam(required = false) String sort_by, @RequestParam(required = false) Integer page) {
-        List<JsonNode> Series = seriesService.discoverSeries(results_per_page, genres, decade, language, original_language, watch_region, watch_providers, sort_by, page);
-        return new ResponseEntity<>(Series, HttpStatus.OK);
+        List<JsonNode> series = seriesService.discoverSeries(results_per_page, genres, decade, language, original_language, cast, crew, watch_region, watch_providers, sort_by, page);
+        return new ResponseEntity<>(series, HttpStatus.OK);
     }
 }

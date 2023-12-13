@@ -25,7 +25,8 @@ public class SeriesService {
     private final String apikeyUrl = "?api_key=";
     private final String genreUrl = "&with_genres=";
     private final String decadeUrl = "&first_air_date_year=";
-
+    private final String castUrl = "&with_cast=";
+    private final String crewUrl = "&with_crew=";
     private final String languageUrl = "&language=";
 
     private final String originalLanguageUrl = "&with_original_language=";
@@ -53,6 +54,7 @@ public class SeriesService {
     @SneakyThrows
     public JsonNode getSeries(Integer id) {
         URL url = new URL(baseUrl + seriesUrl + id + apikeyUrl + apikey);
+        System.out.println("URL for getSeries: " + url);
         return objectMapper(url);
     }
 
@@ -87,6 +89,7 @@ public class SeriesService {
                 creatorList.add(creator);
             }
         }
+        System.out.println("HELLO THIS IS A TEST");
         return creatorList;
     }
 
@@ -115,7 +118,7 @@ public class SeriesService {
         List<JsonNode> backdropList = new ArrayList<>();
         if (backdrops != null && backdrops.isArray()) {
             for (JsonNode backdrop : backdrops) {
-                if (backdrop.get("iso_639_1").asText().trim().equalsIgnoreCase("null") && backdrop.get("aspect_ratio").asText().equalsIgnoreCase("1.778")) {
+                if (backdrop.get("iso_639_1").asText().trim().equalsIgnoreCase("null") && backdrop.get("aspect_ratio").asText().equalsIgnoreCase("1.778") && backdrop.get("height").asInt() >= 1080) {
                     String filePath = backdrop.get("file_path").asText();
                     if (filePath.startsWith("/")) {
                         ((ObjectNode) backdrop).put("file_path", imageUrl + filePath);
@@ -179,13 +182,15 @@ public class SeriesService {
     }
 
     @SneakyThrows
-    public List<JsonNode> discoverSeries(Integer resultsPerPage, String genres, String decade, String language, String originalLanguage, String watchRegion, String watchProviders, String sortBy, Integer page) {
+    public List<JsonNode> discoverSeries(Integer resultsPerPage, String genres, String decade, String language, String cast, String crew, String originalLanguage, String watchRegion, String watchProviders, String sortBy, Integer page) {
         if (resultsPerPage == null) resultsPerPage = 20;
         if (page == null || page == 0) page = 1;
         StringBuilder builder = new StringBuilder(baseUrl + discoverUrl + apikeyUrl + apikey);
         addQueryParam(builder, genreUrl, genres);
         addQueryParam(builder, decadeUrl, decade);
         addQueryParam(builder, languageUrl, language);
+        addQueryParam(builder, castUrl, cast);
+        addQueryParam(builder, crewUrl, crew);
         addQueryParam(builder, originalLanguageUrl, originalLanguage);
         addQueryParam(builder, watchRegionUrl, watchRegion);
         addQueryParam(builder, watchProviderUrl, watchProviders);
@@ -200,7 +205,12 @@ public class SeriesService {
             }
             for (JsonNode singleSeries : series) {
                 if (seriesCustomLimit.size() == resultsPerPage) break;
-                seriesCustomLimit.add(singleSeries);
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode seriesJsonNode = objectMapper.createObjectNode();
+                seriesJsonNode.put("id", series.get("id").asInt());
+                seriesJsonNode.put("title", series.get("title").asText());
+                seriesJsonNode.put("poster_path", smallImageUrl + series.get("poster_path").asText());
+                seriesCustomLimit.add(seriesJsonNode);
             }
             page++;
         }
@@ -218,4 +228,5 @@ public class SeriesService {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readTree(url);
     }
+
 }
