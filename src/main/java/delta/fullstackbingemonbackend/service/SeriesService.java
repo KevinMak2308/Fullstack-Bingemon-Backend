@@ -25,8 +25,7 @@ public class SeriesService {
     private final String apikeyUrl = "?api_key=";
     private final String genreUrl = "&with_genres=";
     private final String decadeUrl = "&first_air_date_year=";
-    private final String castUrl = "&with_cast=";
-    private final String crewUrl = "&with_crew=";
+
     private final String languageUrl = "&language=";
 
     private final String originalLanguageUrl = "&with_original_language=";
@@ -182,15 +181,13 @@ public class SeriesService {
     }
 
     @SneakyThrows
-    public List<JsonNode> discoverSeries(Integer resultsPerPage, String genres, String decade, String language, String cast, String crew, String originalLanguage, String watchRegion, String watchProviders, String sortBy, Integer page) {
+    public List<JsonNode> discoverSeries(Integer resultsPerPage, String genres, String decade, String language, String originalLanguage, String watchRegion, String watchProviders, String sortBy, Integer page) {
         if (resultsPerPage == null) resultsPerPage = 20;
         if (page == null || page == 0) page = 1;
         StringBuilder builder = new StringBuilder(baseUrl + discoverUrl + apikeyUrl + apikey);
         addQueryParam(builder, genreUrl, genres);
         addQueryParam(builder, decadeUrl, decade);
         addQueryParam(builder, languageUrl, language);
-        addQueryParam(builder, castUrl, cast);
-        addQueryParam(builder, crewUrl, crew);
         addQueryParam(builder, originalLanguageUrl, originalLanguage);
         addQueryParam(builder, watchRegionUrl, watchRegion);
         addQueryParam(builder, watchProviderUrl, watchProviders);
@@ -201,15 +198,16 @@ public class SeriesService {
             URL url = new URL(builder.toString());
             JsonNode series = objectMapper(url).get("results");
             if (series.isEmpty()) {
+                System.out.println("JUMPSCARE PENIS");
                 break;
             }
             for (JsonNode singleSeries : series) {
                 if (seriesCustomLimit.size() == resultsPerPage) break;
                 ObjectMapper objectMapper = new ObjectMapper();
                 ObjectNode seriesJsonNode = objectMapper.createObjectNode();
-                seriesJsonNode.put("id", series.get("id").asInt());
-                seriesJsonNode.put("title", series.get("title").asText());
-                seriesJsonNode.put("poster_path", smallImageUrl + series.get("poster_path").asText());
+                seriesJsonNode.put("id", singleSeries.get("id").asInt());
+                seriesJsonNode.put("name", singleSeries.get("name").asText());
+                seriesJsonNode.put("poster_path", smallImageUrl + singleSeries.get("poster_path").asText());
                 seriesCustomLimit.add(seriesJsonNode);
             }
             page++;
