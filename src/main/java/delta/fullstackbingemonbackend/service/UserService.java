@@ -50,12 +50,13 @@ public class UserService {
         this.jsonWebToken = jsonWebToken;
     }
 
-    public void saveUser(User user) {
-        userRepository.save(user);
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 
     public User findById(Long id) {
-        return getUserById(id);
+        return userRepository.findById(id).orElseThrow(()
+                -> new NoResultException("User with id: " + id + " was not found"));
     }
 
     public Boolean existsByUsername(String username) {
