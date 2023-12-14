@@ -198,7 +198,6 @@ public class SeriesService {
             URL url = new URL(builder.toString());
             JsonNode series = objectMapper(url).get("results");
             if (series.isEmpty()) {
-                System.out.println("JUMPSCARE PENIS");
                 break;
             }
             for (JsonNode singleSeries : series) {
