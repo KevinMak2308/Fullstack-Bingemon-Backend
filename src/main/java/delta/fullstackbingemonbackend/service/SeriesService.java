@@ -15,7 +15,6 @@ import java.util.List;
 public class SeriesService {
     @Value("${APIKEY}")
     private String apikey;
-////////////
     private final String baseUrl = "https://api.themoviedb.org/3/";
     private final String seriesUrl = "tv/";
     private final String seasonUrl = "/season/";
