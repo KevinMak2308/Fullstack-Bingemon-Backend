@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DBURL: "jdbc:postgresql://localhost:5432/bingemon_database"
-      DBUSER: "postgres"
-      DBPASS: "root"
-      APIKEY: "20a2a0cf465b50a76627f0fdf69012e7"
+      DBURL: jdbc:postgresql://localhost:5432/bingemon_database
+      DBUSER: postgres
+      DBPASS: root
+      APIKEY: 20a2a0cf465b50a76627f0fdf69012e7
 
     steps:
       - name: Checkout code
