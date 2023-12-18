@@ -67,7 +67,6 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             String token = jsonWebToken.generateJWT(loginRequest.getUsername());
-
             User user = userRepository.findByUsername(loginRequest.getUsername());
 
             System.out.println("What does the loginResponse contains?: " + token);
