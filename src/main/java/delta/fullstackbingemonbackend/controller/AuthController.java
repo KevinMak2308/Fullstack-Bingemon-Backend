@@ -69,9 +69,7 @@ public class AuthController {
 
             String token = jsonWebToken.generateJWT(loginRequest.getUsername());
 
-            //Checking Database to see if Username exist
             User user = userRepository.findByUsername(loginRequest.getUsername());
-
 
             System.out.println("What does the loginResponse contains?: " + token);
             Map<String, String> response = new HashMap<>();
