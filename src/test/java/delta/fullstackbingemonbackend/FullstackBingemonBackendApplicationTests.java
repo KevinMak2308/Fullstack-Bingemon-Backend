@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
+@TestPropertySource(locations = "classpath:application.properties")
 class FullstackBingemonBackendApplicationTests {
 
     private static final Logger logger = LoggerFactory.getLogger(FullstackBingemonBackendApplicationTests.class);
