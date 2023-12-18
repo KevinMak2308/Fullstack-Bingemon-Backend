@@ -21,7 +21,6 @@ public class UserDetailsImpl implements UserDetails {
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl() {}
-
     //Can add authorties to the constructor if we want to create multiple roles for each user login in
     //Example authorities.add(new CustomAuthority("user"));
     //Example authorities.add(new CustomAuthority("admin"));
