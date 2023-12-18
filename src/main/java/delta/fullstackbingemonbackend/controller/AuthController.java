@@ -52,7 +52,7 @@ public class AuthController {
 
         //password validation/regex implementeres her
         if (signupRequest.getPassword() == null) {
-            return ResponseEntity.badRequest().body("Password is null");
+            return ResponseEntity.badRequest().body("Requires a password");
         }
 
         User user = new User(signupRequest.getUsername(), signupRequest.getName(), passwordEncoder.encode(signupRequest.getPassword()), signupRequest.getEmail());
@@ -69,7 +69,7 @@ public class AuthController {
 
             String token = jsonWebToken.generateJWT(loginRequest.getUsername());
 
-
+            //Checking Database to see if Username exist
             User user = userRepository.findByUsername(loginRequest.getUsername());
 
 
