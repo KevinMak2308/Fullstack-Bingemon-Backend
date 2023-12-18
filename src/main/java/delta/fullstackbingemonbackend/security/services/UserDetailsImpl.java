@@ -26,7 +26,6 @@ public class UserDetailsImpl implements UserDetails {
     //Example authorities.add(new CustomAuthority("user"));
     //Example authorities.add(new CustomAuthority("admin"));
     //Example authorities.add(new CustomAuthority("premium"));
-
     public UserDetailsImpl(String username, String password) {
         this.username = username;
         this.password = password;
