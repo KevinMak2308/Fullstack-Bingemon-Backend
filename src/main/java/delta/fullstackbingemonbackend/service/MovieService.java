@@ -276,6 +276,16 @@ public class MovieService {
         return null;
     }
 
+    public JsonNode searchMovie(String title) {
+        try {
+            URL url = new URL(baseUrl + searchUrl + apikeyUrl + apikey + "&query=" + title);
+            return objectMapper(url);
+        } catch (MalformedURLException error) {
+            System.out.println("Something went wrong when fetching the data from the API. Check the parameters" + error.getMessage());
+            return null;
+        }
+    }
+
     private void addQueryParam(StringBuilder builder, String name, String value) {
         if (value != null && value.length() != 0) {
             builder.append(name).append(value);

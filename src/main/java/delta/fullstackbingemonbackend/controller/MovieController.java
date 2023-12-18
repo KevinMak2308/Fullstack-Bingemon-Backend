@@ -105,4 +105,10 @@ public class MovieController {
         return new ResponseEntity<>(movieSwipeList, HttpStatus.OK);
 
     }
+
+    @GetMapping("/searchMovie/{title}")
+    public ResponseEntity<JsonNode> serchMovieForSearchbar(@PathVariable String title) {
+        JsonNode searchMovieResults = movieService.searchMovie(title);
+        return new ResponseEntity<>(searchMovieResults, HttpStatus.OK);
+    }
 }
