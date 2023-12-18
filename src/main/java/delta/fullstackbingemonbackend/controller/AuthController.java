@@ -50,7 +50,6 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Username already exists");
         }
 
-        //password validation/regex implementeres her
         if (signupRequest.getPassword() == null) {
             return ResponseEntity.badRequest().body("Requires a password");
         }
