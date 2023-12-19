@@ -20,7 +20,7 @@ jobs:
           java-version: '11'
 
       - name: Build with Maven
-        run: mvn clean install
+        run: mvn clean build
 
 #  deploy:
 #    runs-on: ubuntu-latest
