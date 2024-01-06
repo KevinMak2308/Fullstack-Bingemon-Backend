@@ -33,7 +33,9 @@ jobs:
           echo "APIKEY=${APIKEY}"
 
       - name: Print application.properties
-        run: cat src/main/resources/application.properties
+        run: |
+          cd $GITHUB_WORKSPACE  # Change to the root directory of the repository
+          cat src/main/resources/application.properties
 
       - name: Build with Maven
         run: mvn clean install
