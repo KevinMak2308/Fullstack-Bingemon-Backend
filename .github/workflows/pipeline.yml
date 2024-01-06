@@ -11,7 +11,7 @@ jobs:
 
     env:
       DBURL: jdbc:postgresql://localhost:5432/BingemonTest
-      DBUSER: ${{ secrets.DBUSER }}
+      DBUSER: postgres
       DBPASS: ${{ secrets.DBPASS }}
       APIKEY: ${{ secrets.APIKEY }}
 
