@@ -16,7 +16,7 @@ import java.util.List;
 
 @Service
 public class MovieService {
-    @Value("${APIKEY}")
+    @Value("${apikey}")
     private String apikey;
 
     private final String baseUrl = "https://api.themoviedb.org/3/";

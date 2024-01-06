@@ -16,10 +16,10 @@ import java.util.UUID;
 @Component
 public class JsonWebToken {
     private final Logger logger = LoggerFactory.getLogger(JsonWebToken.class);
-    @Value("${jwt.secret}")
+    @Value("${secret}")
     private String secret;
 
-    @Value("${jwt.expiration}")
+    @Value("${expiration}")
     private Long expiration;
 
     public String generateJWT(String username) {
