@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DBURL: ${{secrets.DBURL}}
-      DBUSER: ${{secrets.DBUSER}}
-      DBPASS: ${{secrets.DBPASS}}
-      APIKEY: ${{secrets.APIKEY}}
+      DBURL: ${{ secrets.DBURL }}
+      DBUSER: ${{ secrets.DBUSER }}
+      DBPASS: ${{ secrets.DBPASS }}
+      APIKEY: ${{ secrets.APIKEY }}
 
     steps:
       - name: Checkout repository
