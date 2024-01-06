@@ -25,6 +25,16 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
+      - name: Print Environment Variables
+        run: |
+          echo "DBURL=${DBURL}"
+          echo "DBUSER=${DBUSER}"
+          echo "DBPASS=${DBPASS}"
+          echo "APIKEY=${APIKEY}"
+
+      - name: Print application.properties
+        run: cat src/main/resources/application.properties
+
       - name: Build with Maven
         run: mvn clean install
 
