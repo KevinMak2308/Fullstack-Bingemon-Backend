@@ -32,10 +32,6 @@ jobs:
           echo "DBPASS=${DBPASS}"
           echo "APIKEY=${APIKEY}"
 
-      - name: Print application.properties
-        run: |
-          cat $GITHUB_WORKSPACE/src/main/resources/application.properties
-
       - name: Build with Maven
         run: mvn clean install
 
