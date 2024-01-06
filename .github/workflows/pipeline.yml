@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DBURL: jdbc:postgresql://localhost:5432/BingemonTest
-      DBUSER: postgres
+      DBURL: ${{ secrets.DBURL }}
+      DBUSER: ${{ secrets.DBUSER }}
       DBPASS: ${{ secrets.DBPASS }}
       APIKEY: ${{ secrets.APIKEY }}
 
