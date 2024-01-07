@@ -54,6 +54,7 @@ public class UserService {
     }
 
     public User findById(Long id) {
+        System.out.println("Testing pipeline");
         return userRepository.findById(id).orElseThrow(()
                 -> new NoResultException("User with id: " + id + " was not found"));
     }
